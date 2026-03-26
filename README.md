@@ -250,6 +250,25 @@ Run the SCD2 demo:
 python src/demo_scd2.py
 ```
 
+## Performance Optimization
+
+Benchmark query performance and monitor database health:
+```bash
+python src/benchmark_queries.py
+```
+
+Current performance (16K records):
+- Patient lookups: <5ms
+- ER encounter queries: ~20ms
+- Bed utilization: ~15ms
+
+Optimizations implemented:
+- ✓ Strategic indexes on FKs and date columns
+- ✓ Batch commits (100-500 records)
+- ✓ SCD2 composite indexes for fast temporal queries
+
+See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for optimization guide.
+
 ## Features Implemented
 
 - [x] Dimensional data model with fact and dimension tables
