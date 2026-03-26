@@ -6,20 +6,25 @@
 -- ─────────────────────────────────────────────
 
 CREATE TABLE dim_patients (
-    patient_key     SERIAL PRIMARY KEY,
-    patient_id      VARCHAR(50)  UNIQUE NOT NULL,  -- business key, UUID format
-    first_name      VARCHAR(100) NOT NULL,
-    last_name       VARCHAR(100) NOT NULL,
-    date_of_birth   DATE         NOT NULL,
-    gender          VARCHAR(20)  NOT NULL,
-    address         TEXT,
-    city            VARCHAR(100),
-    state           VARCHAR(2),
-    zip_code        VARCHAR(10),
-    phone_number    VARCHAR(20),
-    insurance_type  VARCHAR(50)  NOT NULL,
-    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+    patient_key      SERIAL PRIMARY KEY,
+    patient_id       VARCHAR(50)  NOT NULL,          -- business key, UUID format
+    first_name       VARCHAR(100) NOT NULL,
+    last_name        VARCHAR(100) NOT NULL,
+    date_of_birth    DATE         NOT NULL,
+    gender           VARCHAR(20)  NOT NULL,
+    address          TEXT,
+    city             VARCHAR(100),
+    state            VARCHAR(2),
+    zip_code         VARCHAR(10),
+    phone_number     VARCHAR(20),
+    insurance_type   VARCHAR(50)  NOT NULL,
+    -- SCD Type 2 tracking columns
+    valid_from       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    valid_to         TIMESTAMP    DEFAULT '9999-12-31 23:59:59',
+    is_current       BOOLEAN      DEFAULT TRUE,
+    record_version   INTEGER      DEFAULT 1,
+    created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE dim_departments (
@@ -70,6 +75,10 @@ CREATE TABLE fact_bed_events (
 -- ─────────────────────────────────────────────
 -- Indexes
 -- ─────────────────────────────────────────────
+
+-- SCD2 indexes for dim_patients
+CREATE INDEX idx_patients_business_key_current ON dim_patients(patient_id, is_current);
+CREATE INDEX idx_patients_valid_dates          ON dim_patients(valid_from, valid_to);
 
 CREATE INDEX idx_encounters_admission_date  ON fact_encounters(admission_date);
 CREATE INDEX idx_encounters_patient_key     ON fact_encounters(patient_key);

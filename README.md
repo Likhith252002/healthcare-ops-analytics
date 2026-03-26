@@ -205,6 +205,25 @@ healthcare-ops-analytics/
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: Development setup and coding standards
 - **[sql/analytics/README.md](sql/analytics/README.md)**: Analytics query documentation
 
+## Type 2 Slowly Changing Dimensions
+
+Track historical changes to patient demographics:
+```python
+from src.utils.scd2_handler import update_patient_scd2
+
+# Patient moved — creates a new versioned record, preserves the old one
+result = update_patient_scd2(
+    patient_id="<uuid>",
+    changes={"address": "456 New Street", "city": "Boston", "state": "MA"},
+)
+# {'success': True, 'message': 'Created version 2', 'new_patient_key': 1042}
+```
+
+Run the SCD2 demo:
+```bash
+python src/demo_scd2.py
+```
+
 ## Features Implemented
 
 - [x] Dimensional data model with fact and dimension tables
