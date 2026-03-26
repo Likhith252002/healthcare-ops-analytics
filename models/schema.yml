@@ -1,0 +1,63 @@
+version: 2
+
+sources:
+  - name: public
+    description: Raw tables from healthcare operations database
+    tables:
+      - name: dim_patients
+        description: Patient dimension table with SCD Type 2
+      - name: dim_departments
+        description: Hospital departments reference data
+      - name: dim_physicians
+        description: Physician reference data
+      - name: fact_encounters
+        description: Patient encounter fact table
+
+models:
+  - name: stg_patients
+    description: Cleaned and standardized patient demographics (current records only)
+    columns:
+      - name: patient_key
+        description: Surrogate key
+        tests:
+          - not_null
+          - unique
+      - name: age
+        description: Current age calculated from date_of_birth
+      - name: age_group
+        description: Age category (Pediatric/Adult/Senior)
+      - name: insurance_category
+        description: Simplified insurance grouping (Commercial/Government/Self-Pay)
+
+  - name: stg_encounters
+    description: Cleaned encounter records with derived fields
+    columns:
+      - name: encounter_key
+        description: Surrogate key
+        tests:
+          - not_null
+          - unique
+      - name: length_of_stay_days
+        description: Duration of encounter in days
+        tests:
+          - not_null
+      - name: admission_weekday_flag
+        description: Weekend vs Weekday classification
+
+  - name: int_patient_encounters
+    description: Enriched encounter dataset with patient demographics
+    columns:
+      - name: encounter_key
+        tests:
+          - not_null
+          - unique
+      - name: patient_name
+        description: Full name of patient
+      - name: physician_name
+        description: Attending physician name
+
+  - name: mart_encounter_summary
+    description: Aggregated encounter metrics by date, department, and admission type
+
+  - name: mart_patient_summary
+    description: Patient-level lifetime statistics and visit history

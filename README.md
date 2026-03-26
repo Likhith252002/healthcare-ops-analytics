@@ -284,6 +284,23 @@ python src/run_data_quality.py
 
 Tests run automatically during pipeline execution. See [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md) for details.
 
+## dbt Transformation Layer
+
+Analytics engineering models following staging → intermediate → mart architecture:
+
+```
+dim_patients + fact_encounters
+        ↓
+stg_patients + stg_encounters   (clean & standardize)
+        ↓
+int_patient_encounters           (join & enrich)
+        ↓
+mart_encounter_summary           (aggregate for reporting)
+mart_patient_summary             (patient lifetime stats)
+```
+
+See [models/README.md](models/README.md) for full documentation.
+
 ## Features Implemented
 
 - [x] Dimensional data model with fact and dimension tables
