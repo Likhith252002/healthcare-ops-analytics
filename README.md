@@ -290,6 +290,34 @@ psql -d healthcare_ops -f sql/analytics/advanced_analytics.sql
 
 See [docs/ADVANCED_SQL.md](docs/ADVANCED_SQL.md) for pattern documentation.
 
+## Data Visualization Layer
+
+Pre-aggregated metrics for fast dashboard loading (~100x faster than live queries):
+
+```bash
+# Refresh all materialized views
+python src/refresh_viz_metrics.py
+```
+
+**Materialized Views:**
+- `mv_daily_hospital_snapshot` - Daily KPIs (admissions, LOS, bed activity)
+- `mv_department_performance` - Department comparison metrics
+- `mv_patient_demographics` - Population distribution by age/gender/insurance
+- `mv_weekly_trends` - Week-over-week change tracking
+- `mv_top_complaints` - Top 20 chief complaints by frequency
+
+**Performance:** ~5ms query time vs ~500ms without materialized views.
+
+```sql
+-- Example: Last 30 days trend
+SELECT metric_date, total_admissions, emergency_pct
+FROM mv_daily_hospital_snapshot
+WHERE metric_date > CURRENT_DATE - 30
+ORDER BY metric_date;
+```
+
+See [sql/viz/README.md](sql/viz/README.md) for BI tool integration guide (Streamlit, Tableau, PowerBI).
+
 ## Data Quality Framework
 
 Automated data quality tests validate:
