@@ -269,6 +269,27 @@ Optimizations implemented:
 
 See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for optimization guide.
 
+## Advanced SQL Analytics
+
+Expert-level analytical queries demonstrating:
+- ✓ Window functions (LEAD, LAG, RANK, NTILE)
+- ✓ Running totals and moving averages
+- ✓ Cohort analysis patterns
+- ✓ Recursive CTEs
+
+```bash
+# Run advanced analytics
+psql -d healthcare_ops -f sql/analytics/advanced_analytics.sql
+```
+
+**Example queries:**
+- 30-day readmission rates
+- Department performance rankings with percentiles
+- Patient retention cohorts
+- Physician utilization analysis
+
+See [docs/ADVANCED_SQL.md](docs/ADVANCED_SQL.md) for pattern documentation.
+
 ## Data Quality Framework
 
 Automated data quality tests validate:

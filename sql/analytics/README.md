@@ -77,6 +77,31 @@ To see patient data as it existed on December 1, 2025:
 SELECT ... WHERE valid_from <= '2025-12-01' AND valid_to > '2025-12-01'
 ```
 
+### 6. Advanced Analytics (`advanced_analytics.sql`)
+Expert-level SQL demonstrating sophisticated analytical techniques.
+
+**Queries included:**
+
+1. **30-Day Readmissions** - LEAD() window function to identify patient readmissions
+2. **Department Performance Ranking** - RANK(), PERCENT_RANK(), NTILE() for performance tiers
+3. **Running Totals & Moving Averages** - SUM() OVER, AVG() OVER with window frames
+4. **Cohort Analysis** - Patient retention by first visit month
+5. **Physician Utilization** - Workload analysis with partition-based comparisons
+6. **Recursive Bed Timeline** - Recursive CTE tracking occupancy state changes
+
+**Techniques demonstrated:**
+- Window functions (LEAD, LAG, RANK, NTILE, PERCENT_RANK)
+- Window frames (ROWS BETWEEN, UNBOUNDED PRECEDING)
+- Recursive CTEs (WITH RECURSIVE)
+- Cohort analysis patterns
+- Running totals and moving averages
+- Percentile calculations
+
+Usage:
+```bash
+psql -d healthcare_ops -f sql/analytics/advanced_analytics.sql
+```
+
 ## Testing Queries
 
 After running the data generation pipeline, test these queries:
