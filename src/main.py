@@ -119,6 +119,7 @@ def main(reset=False):
         ("src/generators/generate_patients.py",       "Generating patient demographics"),
         ("src/generators/generate_encounters.py",     "Generating patient encounters"),
         ("src/generators/generate_bed_events.py",     "Generating bed occupancy events"),
+        ("src/run_data_quality.py",                    "Running data quality checks"),
     ]
 
     for script_path, description in steps:

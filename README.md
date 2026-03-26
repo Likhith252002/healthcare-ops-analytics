@@ -269,6 +269,21 @@ Optimizations implemented:
 
 See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for optimization guide.
 
+## Data Quality Framework
+
+Automated data quality tests validate:
+- ✓ NULL constraints
+- ✓ Referential integrity
+- ✓ Business rules
+- ✓ SCD2 temporal consistency
+
+```bash
+# Run quality checks
+python src/run_data_quality.py
+```
+
+Tests run automatically during pipeline execution. See [docs/DATA_QUALITY.md](docs/DATA_QUALITY.md) for details.
+
 ## Features Implemented
 
 - [x] Dimensional data model with fact and dimension tables
