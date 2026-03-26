@@ -55,6 +55,28 @@ Usage:
 psql -d healthcare_ops -f sql/analytics/daily_volume.sql
 ```
 
+### 5. Patient History (`patient_history.sql`)
+Demonstrates Type 2 SCD capabilities with point-in-time queries.
+
+Queries included:
+- Current patient demographics (active records only)
+- Point-in-time reconstruction (patients as they existed on date X)
+- Complete change history for a patient (all versions)
+- Insurance type changes over time
+- Address changes (patient moves)
+
+Usage:
+```bash
+psql -d healthcare_ops -f sql/analytics/patient_history.sql
+```
+
+**Point-in-Time Query Example:**
+To see patient data as it existed on December 1, 2025:
+```sql
+-- Edit the query_date in the CTE
+SELECT ... WHERE valid_from <= '2025-12-01' AND valid_to > '2025-12-01'
+```
+
 ## Testing Queries
 
 After running the data generation pipeline, test these queries:

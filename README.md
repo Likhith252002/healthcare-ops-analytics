@@ -207,6 +207,32 @@ healthcare-ops-analytics/
 
 ## Type 2 Slowly Changing Dimensions
 
+Track complete history of patient demographic changes:
+```python
+# Update patient address (preserves old address in history)
+from utils.scd2_handler import update_patient_scd2
+
+update_patient_scd2(
+    patient_id="abc-123",
+    changes={'address': '456 New St', 'city': 'Boston'}
+)
+```
+
+Query patient data as it existed at any point in time:
+```sql
+-- Patient address on March 1, 2025
+SELECT address FROM dim_patients
+WHERE patient_id = 'abc-123'
+  AND valid_from <= '2025-03-01'
+  AND valid_to > '2025-03-01';
+```
+
+See [docs/SCD2_GUIDE.md](docs/SCD2_GUIDE.md) for complete guide.
+
+---
+
+## Analytics Queries (legacy anchor — see below)
+
 Track historical changes to patient demographics:
 ```python
 from src.utils.scd2_handler import update_patient_scd2
