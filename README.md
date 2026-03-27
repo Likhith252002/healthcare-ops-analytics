@@ -365,6 +365,34 @@ print(f"New: {len(changes['new'])}, Updated: {len(changes['updated'])}")
 
 See [docs/INCREMENTAL_LOADING.md](docs/INCREMENTAL_LOADING.md) for patterns and best practices.
 
+## Testing & CI/CD
+
+Automated testing with GitHub Actions:
+```bash
+# Run all tests
+python -m pytest tests/ -v
+
+# Run specific test file
+python -m pytest tests/test_validation.py -v
+
+# With coverage report
+python -m pytest tests/ --cov=src --cov-report=html
+```
+
+**Test coverage:**
+- ✓ Unit tests for validation, retry, incremental loading
+- ✓ Mocked database tests (no external dependencies)
+- ✓ CI/CD pipeline with GitHub Actions
+- ✓ Automated quality checks on every commit
+
+**CI Pipeline:**
+1. Setup Python + PostgreSQL test database
+2. Run unit tests
+3. Run data quality checks
+4. Check code formatting
+
+See [tests/README.md](tests/README.md) for testing guide.
+
 ## Data Quality Framework
 
 Automated data quality tests validate:
