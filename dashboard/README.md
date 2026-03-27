@@ -48,10 +48,12 @@ The dashboard will open in your browser at http://localhost:8501
 - Tabs for different analytics views
 - Interactive charts for all demographics
 
-**🏥 Department Performance** (Coming soon)
-- Department comparison
-- Resource utilization
-- Efficiency metrics
+**🏥 Department Performance**
+- Department selector (all departments or individual)
+- Comparison view: encounter volume, LOS, emergency %, enc/physician
+- Detailed view: daily trends, chief complaints, admission types
+- Summary metrics with time period filtering
+- Interactive comparison charts
 
 **📈 Advanced Analytics** (Coming soon)
 - Cohort analysis

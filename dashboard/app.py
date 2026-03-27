@@ -246,8 +246,8 @@ elif page == "👥 Patients":
     from pages.patients import show_patient_analytics
     show_patient_analytics()
 elif page == "🏥 Departments":
-    st.title("🏥 Department Performance")
-    st.info("Coming soon!")
+    from pages.departments import show_department_performance
+    show_department_performance()
 elif page == "📈 Analytics":
     st.title("📈 Advanced Analytics")
     st.info("Coming soon!")
