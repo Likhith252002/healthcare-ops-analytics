@@ -395,23 +395,27 @@ See [tests/README.md](tests/README.md) for testing guide.
 
 ## Interactive Dashboard
 
-Streamlit dashboard for visual exploration:
+Streamlit dashboard with 6 pages of analytics:
 ```bash
-# Run dashboard locally
+# Run locally
 streamlit run dashboard/app.py
 ```
 
-**Features:**
-- 🏠 Home page with key metrics and trends
-- 📊 Operations dashboard with real-time KPIs
-- 👥 Patient analytics and demographics
-- 🏥 Department performance comparison
-- 📈 Advanced analytics and visualizations
-- 🔮 ML-powered predictions
+**Pages:**
+- 🏠 **Home:** Overview metrics and recent trends
+- 📊 **Operations:** Real-time KPIs and department performance
+- 👥 **Patients:** Demographics, search, and visit patterns
+- 🏥 **Departments:** Comparison view and individual deep-dives
+- 📈 **Analytics:** Statistical analysis and cohort retention
+- 🔮 **Predictions:** Readmission risk and LOS forecasting
 
-**Access:** Opens in browser at http://localhost:8501
+**Deployment options:**
+- Local development (localhost:8501)
+- Streamlit Cloud (free tier available)
+- Docker container
+- Self-hosted with nginx
 
-See [dashboard/README.md](dashboard/README.md) for deployment options.
+See [dashboard/DEPLOYMENT.md](dashboard/DEPLOYMENT.md) for setup instructions.
 
 ## Data Quality Framework
 

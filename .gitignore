@@ -75,5 +75,10 @@ htmlcov/
 # ── Docker ────────────────────────────────────────────────────────────────────
 docker-compose.override.yml
 
+# ── Streamlit ─────────────────────────────────────────────────────────────────
+.streamlit/secrets.toml
+dashboard/__pycache__/
+dashboard/pages/__pycache__/
+
 # ── Alembic ───────────────────────────────────────────────────────────────────
 # versions/ is intentionally tracked
