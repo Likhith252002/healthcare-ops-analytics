@@ -11,6 +11,7 @@ import psycopg2
 
 from utils.db_connection import get_connection
 from utils.logger import setup_logger
+from utils.retry import retry_with_backoff
 from config.settings import DATA_GENERATION, DEMOGRAPHICS
 
 # Initialize
@@ -85,7 +86,23 @@ def insert_patients(num_patients):
                 record['insurance_type'],
             ))
             if (i + 1) % 100 == 0:
-                conn.commit()
+                batch_size = min(100, i + 1)
+
+                @retry_with_backoff(
+                    max_attempts=3,
+                    base_delay=1.0,
+                    exceptions=(psycopg2.OperationalError, psycopg2.InterfaceError)
+                )
+                def commit_batch():
+                    conn.commit()
+
+                try:
+                    commit_batch()
+                    logger.info(f"Committed batch of {batch_size} patients")
+                except Exception as e:
+                    logger.error(f"Failed to commit batch after retries: {str(e)}")
+                    conn.rollback()
+                    raise
 
         conn.commit()  # Final commit for remaining records
         logger.info(f"Successfully inserted {num_patients} patients")

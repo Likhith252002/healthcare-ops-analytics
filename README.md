@@ -318,6 +318,26 @@ ORDER BY metric_date;
 
 See [sql/viz/README.md](sql/viz/README.md) for BI tool integration guide (Streamlit, Tableau, PowerBI).
 
+## Error Handling & Resilience
+
+Production-grade error handling with:
+- ✓ Retry logic with exponential backoff
+- ✓ Circuit breaker pattern for database failures
+- ✓ Input validation before processing
+- ✓ Safe execution with fallback defaults
+```python
+# Retry failed operations
+@retry_with_backoff(max_attempts=5, base_delay=2.0)
+def connect_to_database():
+    return psycopg2.connect(...)
+
+# Validate inputs
+validate_date_range(start_date, end_date)
+validate_positive_integer(num_patients, "num_patients")
+```
+
+See [docs/ERROR_HANDLING.md](docs/ERROR_HANDLING.md) for patterns and best practices.
+
 ## Data Quality Framework
 
 Automated data quality tests validate:
