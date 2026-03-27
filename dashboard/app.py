@@ -252,5 +252,5 @@ elif page == "📈 Analytics":
     from pages.analytics import show_advanced_analytics
     show_advanced_analytics()
 elif page == "🔮 Predictions":
-    st.title("🔮 Predictive Models")
-    st.info("Coming soon!")
+    from pages.predictions import show_predictions
+    show_predictions()

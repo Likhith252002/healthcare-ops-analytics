@@ -62,10 +62,13 @@ The dashboard will open in your browser at http://localhost:8501
 - Day of week and hour of day patterns
 - Cohort retention analysis with retention rates
 
-**🔮 Predictions** (Coming soon)
-- Readmission risk scoring
-- Length of stay forecasting
-- ML model results
+**🔮 Predictive Analytics**
+- Readmission risk calculator (rule-based scoring 0-100)
+- Length of stay prediction (department-specific)
+- Risk factor identification
+- Confidence intervals and historical context
+
+**Note:** Predictions use simple statistical models and historical averages, not trained ML models.
 
 ## Configuration
 
