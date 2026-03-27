@@ -249,8 +249,8 @@ elif page == "🏥 Departments":
     from pages.departments import show_department_performance
     show_department_performance()
 elif page == "📈 Analytics":
-    st.title("📈 Advanced Analytics")
-    st.info("Coming soon!")
+    from pages.analytics import show_advanced_analytics
+    show_advanced_analytics()
 elif page == "🔮 Predictions":
     st.title("🔮 Predictive Models")
     st.info("Coming soon!")

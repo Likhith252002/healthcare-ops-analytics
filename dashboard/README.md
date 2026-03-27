@@ -55,10 +55,12 @@ The dashboard will open in your browser at http://localhost:8501
 - Summary metrics with time period filtering
 - Interactive comparison charts
 
-**📈 Advanced Analytics** (Coming soon)
-- Cohort analysis
-- Trend visualization
-- Statistical summaries
+**📈 Advanced Analytics**
+- Statistical summary (mean, median, quartiles, IQR, std dev)
+- LOS distribution histogram with mean/median lines
+- Weekly admission trends with dual-axis (volume + LOS)
+- Day of week and hour of day patterns
+- Cohort retention analysis with retention rates
 
 **🔮 Predictions** (Coming soon)
 - Readmission risk scoring
