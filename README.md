@@ -393,6 +393,26 @@ python -m pytest tests/ --cov=src --cov-report=html
 
 See [tests/README.md](tests/README.md) for testing guide.
 
+## Interactive Dashboard
+
+Streamlit dashboard for visual exploration:
+```bash
+# Run dashboard locally
+streamlit run dashboard/app.py
+```
+
+**Features:**
+- 🏠 Home page with key metrics and trends
+- 📊 Operations dashboard with real-time KPIs
+- 👥 Patient analytics and demographics
+- 🏥 Department performance comparison
+- 📈 Advanced analytics and visualizations
+- 🔮 ML-powered predictions
+
+**Access:** Opens in browser at http://localhost:8501
+
+See [dashboard/README.md](dashboard/README.md) for deployment options.
+
 ## Data Quality Framework
 
 Automated data quality tests validate:
