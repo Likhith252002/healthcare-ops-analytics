@@ -240,8 +240,8 @@ with st.sidebar:
 if page == "🏠 Home":
     show_home_page()
 elif page == "📊 Dashboard":
-    st.title("📊 Operations Dashboard")
-    st.info("Coming in next prompt!")
+    from pages.operations import show_operations_dashboard
+    show_operations_dashboard()
 elif page == "👥 Patients":
     st.title("👥 Patient Analytics")
     st.info("Coming soon!")

@@ -20,11 +20,19 @@ The dashboard will open in your browser at http://localhost:8501
 - Admission type distribution
 - Quick navigation
 
-**📊 Operations Dashboard** (Coming soon)
-- Real-time KPIs
-- Department performance
-- Bed utilization rates
-- Wait time metrics
+**📊 Operations Dashboard**
+- Real-time KPIs (admissions, LOS, emergency %, bed utilization)
+- Daily admission trends with emergency/scheduled breakdown
+- Department volume comparison
+- Length of stay distribution
+- Hourly admission patterns
+- Department performance table
+
+**Interactive features:**
+- Adjustable time period (7/14/30/60/90 days)
+- Refresh button for latest data
+- Hover tooltips on all charts
+- Sortable department details table
 
 **👥 Patient Analytics** (Coming soon)
 - Demographics breakdown
