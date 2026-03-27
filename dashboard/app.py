@@ -243,8 +243,8 @@ elif page == "📊 Dashboard":
     from pages.operations import show_operations_dashboard
     show_operations_dashboard()
 elif page == "👥 Patients":
-    st.title("👥 Patient Analytics")
-    st.info("Coming soon!")
+    from pages.patients import show_patient_analytics
+    show_patient_analytics()
 elif page == "🏥 Departments":
     st.title("🏥 Department Performance")
     st.info("Coming soon!")

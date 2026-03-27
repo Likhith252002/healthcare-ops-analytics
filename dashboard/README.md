@@ -34,10 +34,19 @@ The dashboard will open in your browser at http://localhost:8501
 - Hover tooltips on all charts
 - Sortable department details table
 
-**👥 Patient Analytics** (Coming soon)
-- Demographics breakdown
-- Visit history analysis
-- Readmission tracking
+**👥 Patient Analytics**
+- Demographics overview (age, gender, insurance, geography)
+- Patient search functionality
+- Individual patient encounter history
+- Visit frequency patterns
+- Top frequent patients
+- 30-day readmission tracking with trends
+
+**Interactive features:**
+- Search patients by name
+- View detailed encounter history per patient
+- Tabs for different analytics views
+- Interactive charts for all demographics
 
 **🏥 Department Performance** (Coming soon)
 - Department comparison
