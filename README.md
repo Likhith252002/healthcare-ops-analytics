@@ -417,6 +417,8 @@ streamlit run dashboard/app.py
 
 See [dashboard/DEPLOYMENT.md](dashboard/DEPLOYMENT.md) for setup instructions.
 
+See [DASHBOARD_FEATURES.md](DASHBOARD_FEATURES.md) for detailed page-by-page documentation.
+
 ## Data Quality Framework
 
 Automated data quality tests validate:
