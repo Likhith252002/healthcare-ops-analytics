@@ -287,6 +287,33 @@ See [ml/README.md](ml/README.md) for full documentation.
 
 ---
 
+## 🌐 REST API
+
+FastAPI server for programmatic access:
+
+```bash
+# Start API server
+uvicorn api.main:app --reload --port 8000
+```
+
+**Endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/patients` | List patients (paginated) |
+| GET | `/patients/{id}` | Get specific patient |
+| GET | `/encounters` | List encounters |
+| GET | `/departments` | List departments |
+| GET | `/stats/summary` | Summary statistics |
+| POST | `/predict/readmission` | ML readmission risk score |
+| POST | `/predict/los` | ML length-of-stay prediction |
+
+**Interactive docs:** http://localhost:8000/docs
+
+See [api/README.md](api/README.md) for full API documentation.
+
+---
+
 ## 📈 Data Quality
 
 ```bash
