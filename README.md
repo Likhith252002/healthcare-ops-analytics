@@ -3,24 +3,30 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PostgreSQL](https://img.shields.io/badge/postgresql-15-blue.svg)](https://www.postgresql.org/)
 [![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)](https://streamlit.io/)
+[![FastAPI](https://img.shields.io/badge/fastapi-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 [![dbt](https://img.shields.io/badge/dbt-1.6+-orange.svg)](https://www.getdbt.com/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)](https://scikit-learn.org/)
+[![Prometheus](https://img.shields.io/badge/prometheus-metrics-red.svg)](https://prometheus.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **End-to-end healthcare analytics platform** demonstrating data engineering, analytics engineering, and business intelligence best practices.
+> **End-to-end healthcare analytics platform** demonstrating data engineering, analytics engineering, machine learning, REST APIs, and production observability.
 
-**📊 [Live Dashboard Demo](#)** | **📚 [Documentation](docs/)** | **🎯 [Features](DASHBOARD_FEATURES.md)**
+**📊 [Live Dashboard Demo](#)** | **📚 [Documentation](docs/)** | **🎯 [Features](DASHBOARD_FEATURES.md)** | **🚀 [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)**
 
 ---
 
 ## 🎯 Project Overview
 
 Professional-grade data platform showcasing:
-- **Data Engineering:** ETL pipeline, dimensional modeling, Type 2 SCD
-- **Analytics Engineering:** dbt transformations, data quality testing
+- **Data Engineering:** ETL pipeline, dimensional modeling, Type 2 SCD, incremental loading
+- **Analytics Engineering:** dbt transformations, materialized views, data quality testing
+- **Machine Learning:** RandomForest readmission risk and LOS prediction (scikit-learn)
+- **REST API:** FastAPI with Pydantic validation, OpenAPI docs, ML prediction endpoints
+- **Orchestration:** Apache Airflow DAGs (daily ETL + hourly monitoring)
+- **Observability:** Prometheus metrics, structured JSON logging, health checks
 - **Business Intelligence:** Interactive Streamlit dashboard with 6 pages
-- **Production Engineering:** Error handling, testing, CI/CD
 
-**Built for:** Portfolio, job applications, and demonstrating full-stack data skills
+**Built for:** Portfolio, job applications, and demonstrating full-stack data engineering skills
 
 ---
 
@@ -202,13 +208,17 @@ healthcare-ops-analytics/
 
 | Metric | Value |
 |--------|-------|
-| **Lines of Code** | ~6,000 |
-| **Files** | 70+ |
-| **Git Commits** | 28+ |
+| **Lines of Code** | ~8,000 |
+| **Files** | 85+ |
+| **Git Commits** | 33+ |
 | **Unit Tests** | 24 |
-| **Documentation Pages** | 15+ |
+| **Documentation Pages** | 20+ |
 | **SQL Queries** | 25+ |
 | **Dashboard Pages** | 6 |
+| **API Endpoints** | 10 |
+| **Prometheus Metrics** | 12 |
+| **ML Models** | 2 (RandomForest) |
+| **Airflow DAGs** | 2 (daily ETL + hourly monitoring) |
 | **Charts & Visualizations** | 30+ |
 | **Patients Generated** | 5,000 |
 | **Encounters Generated** | 15,000+ |
@@ -368,12 +378,21 @@ python src/refresh_viz_metrics.py
 
 ## 📚 Documentation
 
-- **[DASHBOARD_FEATURES.md](DASHBOARD_FEATURES.md)** - Detailed dashboard documentation
+**Platform:**
+- **[docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** - Complete deployment walkthrough
 - **[docs/PROJECT_SUMMARY.md](docs/PROJECT_SUMMARY.md)** - Architecture and overview
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design decisions
+- **[DASHBOARD_FEATURES.md](DASHBOARD_FEATURES.md)** - Dashboard feature reference
+
+**Components:**
+- **[ml/README.md](ml/README.md)** - ML models: features, training, usage
+- **[api/README.md](api/README.md)** - REST API endpoints and curl examples
+- **[monitoring/README.md](monitoring/README.md)** - Prometheus setup, alerts, log filtering
+- **[airflow/README.md](airflow/README.md)** - Airflow DAG setup and manual triggers
+
+**Engineering:**
 - **[docs/SCD2_GUIDE.md](docs/SCD2_GUIDE.md)** - Type 2 SCD implementation
 - **[docs/PERFORMANCE.md](docs/PERFORMANCE.md)** - Optimization strategies
-- **[dashboard/DEPLOYMENT.md](dashboard/DEPLOYMENT.md)** - Deployment guide
 - **[tests/README.md](tests/README.md)** - Testing guide
 
 ---
@@ -397,7 +416,7 @@ docker build -t healthcare-dashboard .
 docker run -p 8501:8501 healthcare-dashboard
 ```
 
-See [dashboard/DEPLOYMENT.md](dashboard/DEPLOYMENT.md) for detailed instructions.
+See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for the complete deployment walkthrough.
 
 ---
 
@@ -408,18 +427,31 @@ See [dashboard/DEPLOYMENT.md](dashboard/DEPLOYMENT.md) for detailed instructions
 - PostgreSQL 15
 - dbt 1.6+
 - Streamlit 1.28+
+- FastAPI 0.104+
+- Apache Airflow 2.7+
+
+**Machine Learning:**
+- scikit-learn — RandomForest models
+- joblib — model persistence
+- numpy / pandas — feature engineering
+
+**Observability:**
+- prometheus-client — metrics exposition
+- python-json-logger — structured logging
+- psutil — system metrics
 
 **Libraries:**
-- pandas - Data manipulation
-- plotly - Interactive visualizations
-- psycopg2 - PostgreSQL adapter
-- pytest - Testing framework
+- pandas — Data manipulation
+- plotly — Interactive visualizations
+- psycopg2 — PostgreSQL adapter
+- pytest — Testing framework
+- pydantic — API validation
 
 **DevOps:**
-- GitHub Actions - CI/CD
-- Docker - Containerization
-- Black - Code formatting
-- Flake8 - Linting
+- GitHub Actions — CI/CD
+- Docker — Containerization
+- Black — Code formatting
+- Flake8 — Linting
 
 ---
 
