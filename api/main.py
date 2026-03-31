@@ -7,22 +7,37 @@ Run: uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 Docs: http://localhost:8000/docs
 """
 import sys
+import time
 from pathlib import Path
+from datetime import datetime, date
+from typing import List, Optional
 
 sys.path.append(str(Path(__file__).parent.parent))
-
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from datetime import datetime, date
-import pandas as pd
-import numpy as np
-
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-from utils.db_connection import get_connection
 
-# Try to load ML models (optional — requires python ml/train_models.py first)
+import numpy as np
+import pandas as pd
+import psutil
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+from pydantic import BaseModel, Field
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+
+from utils.db_connection import get_connection
+from monitoring.metrics import (
+    http_requests_total,
+    http_request_duration_seconds,
+    ml_predictions_total,
+    ml_prediction_duration_seconds,
+    update_gauges,
+)
+from monitoring.logging_config import logger
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ML models (optional — train first with: python ml/train_models.py)
+# ─────────────────────────────────────────────────────────────────────────────
+
 try:
     from ml.models.readmission_model import ReadmissionRiskModel
     from ml.models.los_model import LOSPredictionModel
@@ -30,15 +45,19 @@ try:
     READMISSION_MODEL = ReadmissionRiskModel.load()
     LOS_MODEL = LOSPredictionModel.load()
     ML_AVAILABLE = True
-except Exception:
+    logger.info("ML models loaded successfully")
+except Exception as exc:
     ML_AVAILABLE = False
     READMISSION_MODEL = None
     LOS_MODEL = None
-    print("⚠️  ML models not available. Train models first: python ml/train_models.py")
+    logger.warning("ML models not available — train first: python ml/train_models.py",
+                   extra={"error": str(exc)})
 
 # ─────────────────────────────────────────────────────────────────────────────
-# App setup
+# App
 # ─────────────────────────────────────────────────────────────────────────────
+
+_START_TIME = time.time()
 
 app = FastAPI(
     title="Healthcare Operations API",
@@ -57,6 +76,42 @@ app.add_middleware(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Monitoring middleware
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.middleware("http")
+async def monitor_requests(request: Request, call_next):
+    """Record Prometheus metrics and structured log for every HTTP request."""
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+
+    http_requests_total.labels(
+        method=request.method,
+        endpoint=request.url.path,
+        status=response.status_code,
+    ).inc()
+
+    http_request_duration_seconds.labels(
+        method=request.method,
+        endpoint=request.url.path,
+    ).observe(duration)
+
+    logger.info(
+        "HTTP request",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "duration_seconds": round(duration, 4),
+        },
+    )
+
+    return response
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Pydantic models
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -68,18 +123,18 @@ class Patient(BaseModel):
     date_of_birth: date
     gender: str
     insurance_type: str
-    city: Optional[str]
-    state: Optional[str]
+    city: Optional[str] = None
+    state: Optional[str] = None
 
 
 class Encounter(BaseModel):
     encounter_key: int
     patient_id: str
     admission_date: datetime
-    discharge_date: Optional[datetime]
+    discharge_date: Optional[datetime] = None
     admission_type: str
     department_name: str
-    chief_complaint: Optional[str]
+    chief_complaint: Optional[str] = None
 
 
 class Department(BaseModel):
@@ -107,15 +162,14 @@ class LOSPredictionRequest(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helper: build DataFrames for ML models from request fields
+# ML feature helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
 _INSURANCE_MAP = {0: "Medicare", 1: "Self-Pay"}
-_SEVERITY_BY_EMERGENCY = {0: "General", 1: "Cardiac"}  # emergency → higher severity
+_SEVERITY_BY_EMERGENCY = {0: "General", 1: "Cardiac"}
 
 
 def _readmission_df(req: ReadmissionRiskRequest) -> pd.DataFrame:
-    """Build a feature DataFrame compatible with ReadmissionRiskModel."""
     return pd.DataFrame(
         [
             {
@@ -131,8 +185,6 @@ def _readmission_df(req: ReadmissionRiskRequest) -> pd.DataFrame:
 
 
 def _los_df(req: LOSPredictionRequest) -> pd.DataFrame:
-    """Build a feature DataFrame compatible with LOSPredictionModel."""
-    # Construct a synthetic admission_date that carries the correct hour
     base_date = datetime(2024, 1, 7 + req.day_of_week, req.hour_of_day, 0)
     return pd.DataFrame(
         [
@@ -149,7 +201,56 @@ def _los_df(req: LOSPredictionRequest) -> pd.DataFrame:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Endpoints
+# Endpoints — observability
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.get("/metrics", include_in_schema=False)
+def metrics():
+    """Prometheus metrics scrape endpoint."""
+    update_gauges()
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/health")
+def health_check():
+    """Comprehensive health check: database, ML models, and system resources."""
+    # Database
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.close()
+        conn.close()
+        db_status = "ok"
+    except Exception as exc:
+        db_status = f"error: {exc}"
+
+    ml_status = "ok" if ML_AVAILABLE else "unavailable"
+
+    overall = "healthy" if db_status == "ok" else "degraded"
+
+    cpu_percent = psutil.cpu_percent(interval=0.1)
+    mem = psutil.virtual_memory()
+
+    return {
+        "status": overall,
+        "timestamp": datetime.now().isoformat(),
+        "uptime_seconds": round(time.time() - _START_TIME, 1),
+        "checks": {
+            "database": db_status,
+            "ml_models": ml_status,
+        },
+        "system": {
+            "cpu_percent": cpu_percent,
+            "memory_percent": mem.percent,
+            "memory_available_gb": round(mem.available / (1024 ** 3), 2),
+        },
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Endpoints — root
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -162,6 +263,11 @@ def root():
         "version": "1.0.0",
         "ml_models_available": ML_AVAILABLE,
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Endpoints — data
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 @app.get("/patients", response_model=List[Patient])
@@ -199,7 +305,7 @@ def get_patients(
 
 @app.get("/patients/{patient_id}", response_model=Patient)
 def get_patient(patient_id: str):
-    """Get a specific patient by business key (patient_id)."""
+    """Get a specific patient by business key."""
     conn = get_connection()
     try:
         df = pd.read_sql(
@@ -249,8 +355,8 @@ def get_encounters(
                     e.chief_complaint
                 FROM fact_encounters e
                 JOIN dim_departments d ON e.department_key = d.department_key
-                JOIN dim_patients    p ON e.patient_key  = p.patient_key
-                                      AND p.is_current   = TRUE
+                JOIN dim_patients    p ON e.patient_key    = p.patient_key
+                                      AND p.is_current     = TRUE
                 WHERE p.patient_id = %s
                 ORDER BY e.admission_date DESC
                 LIMIT %s
@@ -271,8 +377,8 @@ def get_encounters(
                     e.chief_complaint
                 FROM fact_encounters e
                 JOIN dim_departments d ON e.department_key = d.department_key
-                JOIN dim_patients    p ON e.patient_key  = p.patient_key
-                                      AND p.is_current   = TRUE
+                JOIN dim_patients    p ON e.patient_key    = p.patient_key
+                                      AND p.is_current     = TRUE
                 ORDER BY e.admission_date DESC
                 LIMIT %s
                 """,
@@ -339,56 +445,81 @@ def get_summary_stats():
     return stats
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Endpoints — ML predictions
+# ─────────────────────────────────────────────────────────────────────────────
+
+
 @app.post("/predict/readmission")
 def predict_readmission(request: ReadmissionRiskRequest):
     """Predict 30-day readmission risk using the trained RandomForest model."""
     if not ML_AVAILABLE:
+        ml_predictions_total.labels(model="readmission", status="unavailable").inc()
         raise HTTPException(
             status_code=503,
             detail="ML models not available. Train models first: python ml/train_models.py",
         )
 
-    df = _readmission_df(request)
-    probability = float(READMISSION_MODEL.predict_proba(df)[0])
-    risk_score = round(probability * 100, 1)
+    t0 = time.time()
+    try:
+        df = _readmission_df(request)
+        probability = float(READMISSION_MODEL.predict_proba(df)[0])
+        risk_score = round(probability * 100, 1)
 
-    if risk_score >= 70:
-        prediction = "High Risk"
-    elif risk_score >= 40:
-        prediction = "Medium Risk"
-    else:
-        prediction = "Low Risk"
+        if risk_score >= 70:
+            prediction = "High Risk"
+        elif risk_score >= 40:
+            prediction = "Medium Risk"
+        else:
+            prediction = "Low Risk"
 
-    return {
-        "risk_score": risk_score,
-        "prediction": prediction,
-        "probability": round(probability, 4),
-    }
+        ml_predictions_total.labels(model="readmission", status="success").inc()
+        return {
+            "risk_score": risk_score,
+            "prediction": prediction,
+            "probability": round(probability, 4),
+        }
+    except Exception as exc:
+        ml_predictions_total.labels(model="readmission", status="error").inc()
+        logger.error("Readmission prediction failed", extra={"error": str(exc)})
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        ml_prediction_duration_seconds.labels(model="readmission").observe(
+            time.time() - t0
+        )
 
 
 @app.post("/predict/los")
 def predict_los(request: LOSPredictionRequest):
     """Predict inpatient length of stay (days) using the trained RandomForest model."""
     if not ML_AVAILABLE:
+        ml_predictions_total.labels(model="los", status="unavailable").inc()
         raise HTTPException(
             status_code=503,
             detail="ML models not available. Train models first: python ml/train_models.py",
         )
 
-    df = _los_df(request)
+    t0 = time.time()
+    try:
+        df = _los_df(request)
+        X = LOS_MODEL.prepare_features(df, fit=False)
+        tree_preds = np.array(
+            [tree.predict(X)[0] for tree in LOS_MODEL.model.estimators_]
+        )
+        predicted_los = float(np.clip(tree_preds.mean(), 0, None))
+        margin = float(1.96 * tree_preds.std())
 
-    # Collect individual tree predictions for a simple confidence interval
-    X = LOS_MODEL.prepare_features(df, fit=False)
-    tree_preds = np.array(
-        [tree.predict(X)[0] for tree in LOS_MODEL.model.estimators_]
-    )
-    predicted_los = float(np.clip(tree_preds.mean(), 0, None))
-    margin = float(1.96 * tree_preds.std())
-
-    return {
-        "predicted_los": round(predicted_los, 1),
-        "confidence_interval": [
-            round(max(0.0, predicted_los - margin), 1),
-            round(predicted_los + margin, 1),
-        ],
-    }
+        ml_predictions_total.labels(model="los", status="success").inc()
+        return {
+            "predicted_los": round(predicted_los, 1),
+            "confidence_interval": [
+                round(max(0.0, predicted_los - margin), 1),
+                round(predicted_los + margin, 1),
+            ],
+        }
+    except Exception as exc:
+        ml_predictions_total.labels(model="los", status="error").inc()
+        logger.error("LOS prediction failed", extra={"error": str(exc)})
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        ml_prediction_duration_seconds.labels(model="los").observe(time.time() - t0)

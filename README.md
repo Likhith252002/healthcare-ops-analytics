@@ -314,6 +314,38 @@ See [api/README.md](api/README.md) for full API documentation.
 
 ---
 
+## 📡 Monitoring & Observability
+
+Production-grade monitoring with Prometheus metrics and structured JSON logging:
+
+```bash
+# Prometheus metrics
+curl http://localhost:8000/metrics
+
+# Health check (DB + ML models + system resources)
+curl http://localhost:8000/health
+```
+
+**Metrics collected:**
+
+| Category | Metrics |
+|----------|---------|
+| HTTP | Request rates, latency (histogram) |
+| Database | Query counts, duration |
+| ML models | Prediction counts, latency, error rate |
+| Data quality | Check pass/fail counts |
+| ETL | Pipeline run counts, duration |
+| Gauges | Active patients, total encounters, avg LOS |
+
+**Structured logs** (JSON to stdout):
+```bash
+uvicorn api.main:app 2>&1 | jq 'select(.severity=="ERROR")'
+```
+
+See [monitoring/README.md](monitoring/README.md) for Prometheus scrape config, Grafana setup, and alert rules.
+
+---
+
 ## 📈 Data Quality
 
 ```bash
