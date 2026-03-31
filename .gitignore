@@ -80,5 +80,8 @@ docker-compose.override.yml
 dashboard/__pycache__/
 dashboard/pages/__pycache__/
 
+# ── ML model artifacts ────────────────────────────────────────────────────────
+ml/saved_models/
+
 # ── Alembic ───────────────────────────────────────────────────────────────────
 # versions/ is intentionally tracked

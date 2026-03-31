@@ -257,6 +257,36 @@ See [airflow/README.md](airflow/README.md) for setup instructions.
 
 ---
 
+## 🤖 Machine Learning
+
+scikit-learn models for clinical prediction:
+
+```bash
+# Train both models (requires populated database)
+python ml/train_models.py
+```
+
+**Models:**
+
+| Model | Algorithm | Target | Metric |
+|-------|-----------|--------|--------|
+| Readmission Risk | RandomForestClassifier | 30-day readmission (binary) | ROC-AUC |
+| Length of Stay | RandomForestRegressor | Days admitted (continuous) | MAE / R² |
+
+**Features used:** age, LOS, prior visits, department, diagnosis severity, insurance type
+
+**Usage:**
+```python
+from ml.models import ReadmissionRiskModel, LOSPredictionModel
+
+model = ReadmissionRiskModel.load()
+risk = model.predict_proba(patient_df)[0]  # 0.0 – 1.0
+```
+
+See [ml/README.md](ml/README.md) for full documentation.
+
+---
+
 ## 📈 Data Quality
 
 ```bash
