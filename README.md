@@ -236,6 +236,27 @@ python -m pytest tests/test_validation.py -v
 
 ---
 
+## ⚙️ Orchestration
+
+Apache Airflow manages automated workflows:
+```bash
+# Start Airflow
+export AIRFLOW_HOME=$(pwd)/airflow
+airflow db init
+airflow webserver --port 8080 &
+airflow scheduler &
+```
+
+**DAGs:**
+- **Daily ETL Pipeline:** Automated data generation and transformation (2 AM)
+- **Data Quality Monitoring:** Hourly freshness and anomaly checks
+
+**Access:** http://localhost:8080
+
+See [airflow/README.md](airflow/README.md) for setup instructions.
+
+---
+
 ## 📈 Data Quality
 
 ```bash
